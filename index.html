@@ -1,0 +1,105 @@
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Client-side Web</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" name="viewport">
+    <base href="/">
+
+    <!--Campo de links-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+
+<body>
+
+    <div class="card">
+
+        <div class="card-body">
+
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+                crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+                integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+                crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+                integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+                crossorigin="anonymous"></script>
+
+            <div class="input-group mb-3">
+
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">@</span>
+                </div>
+
+                <input type="text" class="form-control" style="min-width: 30%; max-width: 60%;"
+                    placeholder="Envie uma mensagem ao servidor" aria-describedby="basic-addon1" id="eingabe"
+                    onkeypress="myFunction(event)">
+
+                <button type="button" class="btn btn-info" onclick="clearlog()">Clear Logs</button>
+
+            </div>
+
+            <br>
+
+            <div class="form-group">
+                <label>Operações com o LED</label>
+                <br>
+                <button type="button" class="btn btn-outline-success">Ligar</button>
+                <button type="button" class="btn btn-outline-danger">Desligar</button>
+            </div>
+
+            <br>
+
+            <div class="form-group">
+                <label>Server chat</label>
+                <div style="overflow:scroll; width: 100%; height: 300px; border: solid; border-radius: 9px"
+                    id="display">
+                </div>
+            </div>
+
+            <script>
+                //var sock =new WebSocket("ws://localhost:5001");
+                var sock = new WebSocket("ws://localhost:3000");  //ip address must match with the ip address of raspberry pi, port 3000 remains unchanged
+                var display = document.getElementById("display")
+
+                sock.onopen = function (event) {
+                    //alert("Socket connected succesfully!!!")
+                    setTimeout(function () { sock.send('Conexao estabelecida!'); }, 1000);
+                    display.innerHTML += "Conexao estabelecida! <br />";
+                };
+                sock.onmessage = function (event) {
+                    console.log(event);//show received from server data in console of browser
+                    display.innerHTML += event.data + "<br />"; //add incoming message from server to the log screen previous string + new string(message)
+                }
+
+                function myFunction(event) {
+                    //sock.send("Hello");
+                    if (event.keyCode == 13) {     //when enter is pressed...
+                        var text = document.getElementById('eingabe').value;    //assign value of the entered string to te text variable
+                        if (text != "") {     //if text is not an empty string
+                            //display.innerHTML+="From Client: "+text+"<br />"; //show the message from client in div
+                            sock.send(text);    //send string to server
+                            display.innerHTML += "<strong>Eu: </strong>" + text + "<br />";       //display input text in div (client side)
+                            document.getElementById('eingabe').value = "";     //and clear the input field
+                        }
+                        else {
+                            console.log("String vazia não foi enviada")
+                        }
+                    }
+                }
+
+                function clearlog() {
+                    display.innerHTML = "";
+                }
+            </script>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
